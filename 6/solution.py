@@ -1,8 +1,9 @@
+import re
 import numpy as np
 
 def read_data() -> list[str]:
     # read file
-    with open('example.txt', "r") as f:
+    with open('input.txt', "r") as f:
         txt = f.read().splitlines()
         return txt
 
@@ -36,15 +37,39 @@ def solution_part1() -> int:
 def solution_part2() -> int:
     result = 0
     data = read_data()
-    tokens = [ln.split() for ln in data]
-    arr = tokens[:-1]
-    operators = tokens[-1]
-    print(f"arr: {arr}, operators: {operators}")
-    for j in range(len(operators)-1, -1, -1):
-        col = [arr[i][j] for i in range(len(arr))]
-        operator = operators[j]
-        print(f"col: {col}, operator: {operator}")
-            
+    arr = data[:-1]
+    operators = data[-1]
+    new_arr = []
+    v = []
+    for i, operator in enumerate(operators):
+        # add operator if not space
+        if operator != " ":
+            v = []
+            v.append(operator)
+
+        numbers = [row[i] for row in arr] # get column
+        numbers = [n for n in numbers if n != ' '] # remove spaces
+        number = "".join(numbers) # combine digits
+
+        if numbers:
+            v.append(number)
+        else:
+            new_arr.append(v)
+        if i == len(operators) - 1:
+            new_arr.append(v)
+
+    for v in new_arr:
+        if not v:
+            continue
+        operator = v[0]
+        numbers = list(map(int, reversed(v[1:])))
+        if operator == "+":
+            result += sum(numbers)
+        elif operator == "*":
+            prod = 1
+            for n in numbers:
+                prod *= n
+            result += prod
     return result
 
 if __name__ == "__main__":
