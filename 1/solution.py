@@ -1,17 +1,12 @@
+from pathlib import Path
+from typing import Iterator, Tuple
 
-def getData():
-    vals = []    
 
-    with open('input.txt', 'r') as file:
-        # Read the contents of the file
-        lines = file.readlines()
-        for line in lines:
-            line = line.replace('\n','')
-            dir = line[0]
-            num = int(line[1:])
-            vals.append((dir, num))
-
-    return vals
+def read_ranges(path: Path = Path(__file__).with_name("input.txt")) -> Iterator[Tuple[str, int]]:
+    text = path.read_text()
+    for token in text.split("\n"):
+        a, b = token[0], token[1:]
+        yield a, int(b)
 
 def spin_right(idx, steps):
     wraps = 0
@@ -36,8 +31,7 @@ def spin_left(idx, steps):
 def solution_part1():
     idx = 50
     result = 0
-    vals = getData()
-    for [dir,steps] in vals:
+    for [dir,steps] in read_ranges():
         if dir == 'L':
             idx, _ = spin_left(idx, steps)
             if idx == 0: 
@@ -51,15 +45,12 @@ def solution_part1():
 def solution_part2():
     idx = 50
     wraps = 0
-    vals = getData()
-    for [dir,steps] in vals:
+    for [dir,steps] in read_ranges():
         if dir == 'L':
             idx, wrap = spin_left(idx, steps)
-            print(dir, steps, idx, wrap)
             wraps += wrap
         elif dir == 'R':
             idx, wrap = spin_right(idx, steps)
-            print(dir, steps, idx, wrap)
             wraps += wrap
     return wraps
 

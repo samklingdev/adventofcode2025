@@ -1,51 +1,43 @@
-
-def getData():
-    with open('input.txt', 'r') as file:
-        # Read the contents of the file
-        lines = file.read()
-    
-    return lines.split(',')
-
-            
-def solution_part1():
-    result = 0
-    id_ranges = getData()
-    for id_range in id_ranges:
-        parts = id_range.split('-')
-        start = int(parts[0])
-        end = int(parts[1])
-        for id in range(start, end + 1):
-            mid = len(str(id)) // 2
-            left = str(id)[:mid]
-            right = str(id)[mid:]
-            if left == right:
-                result += id
-    return result
+from pathlib import Path
+from typing import Iterator, Tuple
 
 
-def solution_part2():
-    result = 0
-    id_ranges = getData()
-    for id_range in id_ranges:
-        parts = id_range.split('-')
-        start = int(parts[0])
-        end = int(parts[1])
-        for id in range(start, end + 1):
-            id_len = len(str(id))
-            mid = id_len // 2
-                # if its not dividable, skip
-            sizes = [s for s in range(1, mid+1) if id_len % s == 0]
-            for size in sizes:
-                parts = [str(id)[s:s+size] for s in range(0, id_len, size)]
-                # print(f"size:{size} parts:{parts}")
-                if all(part == parts[0] for part in parts):
-                    result += id
-                    break
+def read_ranges(path: Path = Path(__file__).with_name("input.txt")) -> Iterator[Tuple[int, int]]:
+    text = path.read_text()
+    for token in text.split(","):
+        a, b = token.split("-")
+        yield int(a), int(b)
 
-    return result
+
+def solution_part1() -> int:
+    return sum(
+        n
+        for start, end in read_ranges()
+        for n in range(start, end + 1)
+        if (s := str(n))[: len(s) // 2] == s[len(s) // 2 :]
+    )
+
+
+def _is_repeated(s: str) -> bool:
+    n = len(s)
+    # try only divisors up to n//2; check by repeating the candidate slice
+    for size in range(1, n // 2 + 1):
+        if n % size:
+            continue
+        if s == s[:size] * (n // size):
+            return True
+    return False
+
+
+def solution_part2() -> int:
+    return sum(
+        n
+        for start, end in read_ranges()
+        for n in range(start, end + 1)
+        if _is_repeated(str(n))
+    )
+
 
 if __name__ == "__main__":
-    # result1 = solution_part1()
-    # print("part1:",result1)
-    result2 = solution_part2()
-    print("part2:",result2)
+    print("part1:", solution_part1())
+    print("part2:", solution_part2())
