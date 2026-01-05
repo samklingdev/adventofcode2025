@@ -1,16 +1,15 @@
-import re
-import numpy as np
+from pathlib import Path
+from typing import List
 
-def read_data() -> list[str]:
-    # read file
-    with open('input.txt', "r") as f:
-        txt = f.read().splitlines()
-        return txt
+
+def read_data(path: str) -> List[str]:
+    """Read lines from input file."""
+    return Path(path).read_text(encoding="utf-8").splitlines()
 
 
 def solution_part1() -> int:
     result = 0
-    data = read_data()
+    data = read_data("input.txt")
     new_data = [] # list of lists
     for i, line in enumerate(data):
         vals = line.split(" ")
@@ -36,7 +35,7 @@ def solution_part1() -> int:
 
 def solution_part2() -> int:
     result = 0
-    data = read_data()
+    data = read_data("input.txt")
     arr = data[:-1]
     operators = data[-1]
     new_arr = []
