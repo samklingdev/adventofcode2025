@@ -1,51 +1,52 @@
+from collections import deque
 from pathlib import Path
-from typing import List, Tuple
-
-type Pos = Tuple[int, int]
+from typing import List
+from functools import cache
 
 def read_data(path: str) -> List[str]:
     """Read lines from input file."""
     return Path(path).read_text(encoding="utf-8").splitlines()
 
-def walk(data: List[str], pos: Pos, splits: List[Pos]) -> Pos:
-    x, y = pos
-    # if we reached the bottom, return splits
-    if y + 1 >= len(data):
-        return splits
-
-    # if x is out of bounds, return splits
-    if x < 0 or x >= len(data[0]):
-        return splits
-        
-    # move down until we find a split or reach the bottom
-    for y in range(y + 1, len(data)):
-        if data[y][x] == "^": # did we find a split?
-            # recurse x -1 and x + 1
-            print(f"split at {(x, y)}")
-            left = walk(data, (x - 1, y), splits + [(x, y)])
-            right = walk(data, (x + 1, y), splits + [(x, y)])
-            return left + right
-    else:
-        return splits
-    
-
+data = read_data("input.txt")
 
 def solution_part1() -> int:
     result = 0
-    data = read_data("input.txt")
     start = data[0].find("S")
-    splits = []
-    splits = walk(data, (start, 0), splits)
-    #remove duplicates
-    splits = list(set(splits))
-    return len(splits)
+    beams = deque([(0,start)])
+    seen = set()
+
+    while beams:
+        row, col = beams.popleft()
+        print(f"Visiting: {(row, col)}")
+        if (row, col) in seen:
+            continue
+        seen.add((row, col))
+
+        if data[row][col] == "^":
+            result += 1
+            beams.append((row, col - 1))
+            beams.append((row, col + 1))
+        else:
+            if row + 1 < len(data):
+                beams.append((row + 1, col))
+    return result
+
+@cache
+def solve(row,col) -> int:
+    if row >= len(data):
+        return 1
+    
+    if data[row][col] == "^":
+        return solve(row, col - 1) + solve(row, col + 1)
+    else:
+        return solve(row + 1, col)
 
 def solution_part2() -> int:
     result = 0
-    data = read_data("example.txt")
-    print(f"data: {data}")
+    start = data[0].find("S")
+    result = solve(1, start)
     return result
 
 if __name__ == "__main__":
-    print("part1:", solution_part1())
-    # print("part2:", solution_part2())
+    # print("part1:", solution_part1())
+    print("part2:", solution_part2())
