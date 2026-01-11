@@ -17,7 +17,6 @@ def solution_part1() -> int:
 
     while beams:
         row, col = beams.popleft()
-        print(f"Visiting: {(row, col)}")
         if (row, col) in seen:
             continue
         seen.add((row, col))
@@ -33,9 +32,11 @@ def solution_part1() -> int:
 
 @cache
 def solve(row,col) -> int:
+    # base case
     if row >= len(data):
         return 1
     
+    # recursive case
     if data[row][col] == "^":
         return solve(row, col - 1) + solve(row, col + 1)
     else:
